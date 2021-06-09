@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8">
+      <meta name="description" content="Liquidex.it">
+      <meta name="author" content="Valerio Vaccaro">
+      <link rel="icon" href="">
+      <title>Liquidex</title>
+      <link href="/static/bootstrap.min.css" rel="stylesheet">
+      <link href="/static/base.css" rel="stylesheet">
+      <script src="/static/jquery.min.js"></script>
+      <script src="/static/bootstrap.min.js"></script>
+   </head>
+   <body>
+      <nav class="navbar navbar-inverse navbar-fixed-top">
+         <div class="container">
+            <div class="navbar-header">
+               <a class="navbar-brand" href="/">Liquidex.it</a>
+               <a class="navbar-brand" href="/proposal">New proposal</a>
+               <a class="navbar-brand" href="/book">Order book</a>
+               <a class="navbar-brand" href="/about">About</a>
+            </div>
+         </div>
+      </nav>
+      <div class="container-fluid">
+         <br/><br/><br/><br/>
+         <div id="sl">
+            <br/><br/>
+            <div class="well">
+               <h3>Book</h3>
+               {{#results}}
+
+               {{#available}}
+               <a class="btn btn-block btn-success btn-wrap-text" role="button" data-toggle="collapse" href="#collapse_{{id}}" aria-expanded="false" aria-controls="collapse_{{id}}"><canvas width="30" height="30" style="vertical-align: middle;" data-jdenticon-value="{{id}}"></canvas>Send {{#output}}{{amount}} {{asset}}{{/output}} <br/> Receive {{#input}}{{amount}} {{asset}}{{/input}}</a>
+               {{/available}}
+               {{^available}}
+               <a class="btn btn-block btn-danger btn-wrap-text" role="button" data-toggle="collapse" href="#collapse_{{id}}" aria-expanded="false" aria-controls="collapse_{{id}}"><canvas width="30" height="30" style="vertical-align: middle;" data-jdenticon-value="{{id}}"></canvas>Send {{#output}}{{amount}} {{asset}}{{/output}} <br/> Receive {{#input}}{{amount}} {{asset}}{{/input}}</a>
+               {{/available}}
+
+               <div class="collapse" id="collapse_{{id}}">
+                 <div class="well">
+                   {{#available}}
+                   <p>Available
+                   {{/available}}
+                   {{^available}}
+                   <p>Not available
+                   {{/available}}
+                   liquidex proposal {{id}} created on {{creation_timestamp}}.</p>
+
+                   <p><b>Send:</b></p>
+                   {{#output}}
+                   <p>{{amount}} {{asset}}</p>
+                   {{/output}}
+                   <p><b>Receive:</b></p>
+                   {{#input}}
+                   <p>{{amount}} {{asset}}</p>
+                   {{/input}}
+                   <hr/>
+                   <pre>{{json}}</pre><br/>
+                   <a href="/getproposal?id={{id}}" target="_blank"><button type="button" class="btn btn-danger btn-s"><span class="fas fa-globe-americas" aria-hidden="true"></span>Download the proposal</button></a>
+
+
+                 </div>
+               </div>
+               {{/results}}
+
+            </div>
+         </div>
+      </div>
+      </div>
+   </body>
+</html>
