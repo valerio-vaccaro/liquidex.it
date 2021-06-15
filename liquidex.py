@@ -60,7 +60,6 @@ def url_home():
 
 
 def add_proposal(proposal):
-    print(proposal)
     # check proposal
     try:
         json_object = json.loads(proposal)
@@ -173,6 +172,7 @@ def check(id, asset):
 
 
 def book(id, asset):
+    check(1, 1)
     mydb = mysql.connector.connect(host=myHost, user=myUser, passwd=myPasswd, database=myDatabase)
     mycursor = mydb.cursor()
     sql = ' \
@@ -194,7 +194,7 @@ def book(id, asset):
           filtered_data[x[0]]['input'] = []
           filtered_data[x[0]]['output'] = []
       filtered_data[x[0]]['id'] = x[0]
-      filtered_data[x[0]]['json'] = json.loads(x[1])
+      filtered_data[x[0]]['json'] = x[1]
       filtered_data[x[0]]['available'] = x[6]
       filtered_data[x[0]]['creation_timestamp'] = x[7]
       filtered_data[x[0]]['input'].append({'asset':x[2], 'amount':x[3]})
@@ -211,7 +211,7 @@ def api_book():
     return jsonify(data)
 
 
-@app.route('/getproposal', methods=['GET'])
+@app.route('/api/getproposal', methods=['GET'])
 @limiter.exempt
 def url_getproposal():
     id = request.args.get('id')

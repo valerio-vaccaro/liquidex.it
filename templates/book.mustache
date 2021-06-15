@@ -28,6 +28,7 @@
             <br/><br/>
             <div class="well">
                <h3>Book</h3>
+               <p></p>
                {{#results}}
 
                {{#available}}
@@ -57,7 +58,7 @@
                    {{/input}}
                    <hr/>
                    <pre>{{json}}</pre><br/>
-                   <a href="/getproposal?id={{id}}" target="_blank"><button type="button" class="btn btn-danger btn-s"><span class="fas fa-globe-americas" aria-hidden="true"></span>Download the proposal</button></a>
+                   <a href="/api/getproposal?id={{id}}" target="_blank"><button type="button" class="btn btn-danger btn-s"><span class="fas fa-globe-americas" aria-hidden="true"></span>Download the proposal</button></a>
 
 
                  </div>
