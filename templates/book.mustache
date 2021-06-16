@@ -32,10 +32,10 @@
                {{#results}}
 
                {{#available}}
-               <a class="btn btn-block btn-success btn-wrap-text" role="button" data-toggle="collapse" href="#collapse_{{id}}" aria-expanded="false" aria-controls="collapse_{{id}}"><canvas width="30" height="30" style="vertical-align: middle;" data-jdenticon-value="{{id}}"></canvas>Send {{#output}}{{amount}} {{asset}}{{/output}} <br/> Receive {{#input}}{{amount}} {{asset}}{{/input}}</a>
+               <a class="btn btn-block btn-success btn-wrap-text" role="button" data-toggle="collapse" href="#collapse_{{id}}" aria-expanded="false" aria-controls="collapse_{{id}}"><canvas width="30" height="30" style="vertical-align: middle;" data-jdenticon-value="{{id}}"></canvas>Send {{#output}}{{amount}} {{name}}{{/output}} <br/> Receive {{#input}}{{amount}} {{name}}{{/input}}</a>
                {{/available}}
                {{^available}}
-               <a class="btn btn-block btn-danger btn-wrap-text" role="button" data-toggle="collapse" href="#collapse_{{id}}" aria-expanded="false" aria-controls="collapse_{{id}}"><canvas width="30" height="30" style="vertical-align: middle;" data-jdenticon-value="{{id}}"></canvas>Send {{#output}}{{amount}} {{asset}}{{/output}} <br/> Receive {{#input}}{{amount}} {{asset}}{{/input}}</a>
+               <a class="btn btn-block btn-danger btn-wrap-text" role="button" data-toggle="collapse" href="#collapse_{{id}}" aria-expanded="false" aria-controls="collapse_{{id}}"><canvas width="30" height="30" style="vertical-align: middle;" data-jdenticon-value="{{id}}"></canvas>Send {{#output}}{{amount}} {{name}}{{/output}} <br/> Receive {{#input}}{{amount}} {{name}}{{/input}}</a>
                {{/available}}
 
                <div class="collapse" id="collapse_{{id}}">
@@ -50,16 +50,15 @@
 
                    <p><b>Send:</b></p>
                    {{#output}}
-                   <p>{{amount}} {{asset}}</p>
+                   <p>{{amount}} {{name}} {{asset}}</p>
                    {{/output}}
                    <p><b>Receive:</b></p>
                    {{#input}}
-                   <p>{{amount}} {{asset}}</p>
+                   <p>{{amount}} {{name}} {{asset}}</p>
                    {{/input}}
                    <hr/>
                    <pre>{{json}}</pre><br/>
                    <a href="/api/getproposal?id={{id}}" target="_blank"><button type="button" class="btn btn-danger btn-s"><span class="fas fa-globe-americas" aria-hidden="true"></span>Download the proposal</button></a>
-
 
                  </div>
                </div>

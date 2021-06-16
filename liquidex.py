@@ -100,6 +100,8 @@ def add_proposal(proposal):
     mydb.commit()
     mydb.close()
 
+    resolve_all()
+
     data = {'result': 'ok'}
     return data
 
@@ -123,11 +125,6 @@ def url_proposal():
 
     return render_template('proposal', **data)
 
-@app.route('/check', methods=['GET'])
-@limiter.exempt
-def url_check():
-    check(1, 1)
-    return jsonify('')
 
 def check(id, asset):
     mydb = mysql.connector.connect(host=myHost, user=myUser, passwd=myPasswd, database=myDatabase)
@@ -171,16 +168,70 @@ def check(id, asset):
     mydb.close()
 
 
+@app.route('/check', methods=['GET'])
+@limiter.exempt
+def url_check():
+    check(1, 1)
+    return jsonify('')
+
+
+def resolve_asset(asset_id):
+    mydb = mysql.connector.connect(host=myHost, user=myUser, passwd=myPasswd, database=myDatabase)
+    mycursor = mydb.cursor()
+    sql = ' \
+        SELECT COUNT(*) \
+        FROM asset  \
+        WHERE asset = "'+asset_id+'"'
+    mycursor.execute(sql)
+    result = mycursor.fetchone()
+    if result[0]==0:
+        # get info from
+        try:
+            r = requests.get('https://assets.blockstream.info/'+asset_id)
+            registry_element = r.json()
+            sql = ' \
+                INSERT INTO asset (asset, ticker, name, website) \
+                VALUES (%s, %s, %s, %s)'
+            val = (asset_id, registry_element['contract']['ticker'], registry_element['contract']['name'], registry_element['contract']['entity']['domain'])
+            mycursor.execute(sql, val)
+        except:
+            pass
+    mydb.commit()
+    mydb.close()
+
+
+def resolve_all():
+    mydb = mysql.connector.connect(host=myHost, user=myUser, passwd=myPasswd, database=myDatabase)
+    mycursor = mydb.cursor()
+    sql = ' \
+        SELECT asset FROM input \
+        UNION \
+        SELECT asset FROM output \
+    '
+    mycursor.execute(sql)
+    myresult = mycursor.fetchall()
+    mydb.commit()
+    mydb.close()
+    for x in myresult:
+        resolve_asset(x[0])
+
+
 def book(id, asset):
     check(1, 1)
     mydb = mysql.connector.connect(host=myHost, user=myUser, passwd=myPasswd, database=myDatabase)
     mycursor = mydb.cursor()
     sql = ' \
-        SELECT proposal.id, json, input.asset, input.amount, output.asset, output.amount, available, creation_timestamp \
-        FROM proposal, input, output \
-        WHERE proposal.id = input.proposal_id \
-        AND proposal.id = output.proposal_id \
-        ORDER BY creation_timestamp DESC \
+        SELECT proposal.id, json, input.asset, input.amount, CONCAT(input_asset.ticker," - ",input_asset.name," (",input_asset.website,")") AS name, output.asset, output.amount, CONCAT(output_asset.ticker," - ",output_asset.name," (",output_asset.website,")") AS name, available, proposal.creation_timestamp \
+        FROM proposal \
+        INNER JOIN output \
+        ON proposal.id = output.proposal_id \
+        INNER JOIN input \
+        ON proposal.id = input.proposal_id \
+        LEFT JOIN asset AS input_asset \
+        ON input.asset = input_asset.asset \
+        LEFT JOIN asset AS output_asset \
+        ON output.asset = output_asset.asset \
+        ORDER BY proposal.creation_timestamp DESC \
     '
     val = ()
     mycursor.execute(sql)
@@ -195,10 +246,10 @@ def book(id, asset):
           filtered_data[x[0]]['output'] = []
       filtered_data[x[0]]['id'] = x[0]
       filtered_data[x[0]]['json'] = x[1]
-      filtered_data[x[0]]['available'] = x[6]
-      filtered_data[x[0]]['creation_timestamp'] = x[7]
-      filtered_data[x[0]]['input'].append({'asset':x[2], 'amount':x[3]})
-      filtered_data[x[0]]['output'].append({'asset':x[4], 'amount':x[5]})
+      filtered_data[x[0]]['available'] = x[8]
+      filtered_data[x[0]]['creation_timestamp'] = x[9]
+      filtered_data[x[0]]['input'].append({'asset':x[2], 'amount':x[3], 'name':x[4]})
+      filtered_data[x[0]]['output'].append({'asset':x[5], 'amount':x[6], 'name':x[7]})
     return filtered_data
 
 
