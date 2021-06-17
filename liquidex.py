@@ -190,9 +190,9 @@ def resolve_asset(asset_id):
             r = requests.get('https://assets.blockstream.info/'+asset_id)
             registry_element = r.json()
             sql = ' \
-                INSERT INTO asset (asset, ticker, name, website) \
-                VALUES (%s, %s, %s, %s)'
-            val = (asset_id, registry_element['contract']['ticker'], registry_element['contract']['name'], registry_element['contract']['entity']['domain'])
+                INSERT INTO asset (asset, ticker, name, website, precision_value) \
+                VALUES (%s, %s, %s, %s, %s)'
+            val = (asset_id, registry_element['contract']['ticker'], registry_element['contract']['name'], registry_element['contract']['entity']['domain'], int(registry_element['contract']['precision']))
             mycursor.execute(sql, val)
         except:
             pass
@@ -221,7 +221,7 @@ def book(id, asset):
     mydb = mysql.connector.connect(host=myHost, user=myUser, passwd=myPasswd, database=myDatabase)
     mycursor = mydb.cursor()
     sql = ' \
-        SELECT proposal.id, json, input.asset, input.amount, CONCAT(input_asset.ticker," - ",input_asset.name," (",input_asset.website,")") AS name, output.asset, output.amount, CONCAT(output_asset.ticker," - ",output_asset.name," (",output_asset.website,")") AS name, available, proposal.creation_timestamp \
+        SELECT proposal.id, json, input.asset, input.amount, CONCAT(input_asset.ticker," - ",input_asset.name," (",input_asset.website,")") AS name, output.asset, output.amount, CONCAT(output_asset.ticker," - ",output_asset.name," (",output_asset.website,")") AS name, available, proposal.creation_timestamp, input_asset.precision_value, output_asset.precision_value \
         FROM proposal \
         INNER JOIN output \
         ON proposal.id = output.proposal_id \
@@ -240,6 +240,12 @@ def book(id, asset):
     mydb.close()
     filtered_data = {}
     for x in myresult:
+      in_precision = x[10]
+      if in_precision is None:
+          in_precision = 0
+      out_precision = x[11]
+      if out_precision is None:
+          out_precision = 0
       if x[0] not in filtered_data:
           filtered_data[x[0]] = {}
           filtered_data[x[0]]['input'] = []
@@ -248,8 +254,10 @@ def book(id, asset):
       filtered_data[x[0]]['json'] = x[1]
       filtered_data[x[0]]['available'] = x[8]
       filtered_data[x[0]]['creation_timestamp'] = x[9]
-      filtered_data[x[0]]['input'].append({'asset':x[2], 'amount':x[3], 'name':x[4]})
-      filtered_data[x[0]]['output'].append({'asset':x[5], 'amount':x[6], 'name':x[7]})
+      in_format = '%.'+str(in_precision)+'f'
+      out_format = '%.'+str(out_precision)+'f'
+      filtered_data[x[0]]['input'].append({'asset': x[2], 'sats': '%.0f' % x[3], 'amount': in_format % (x[3]/(10**in_precision)), 'name': x[4]})
+      filtered_data[x[0]]['output'].append({'asset': x[5], 'sats': '%.0f' % x[6], 'amount': out_format % (x[6]/(10**out_precision)), 'name': x[7]})
     return filtered_data
 
 

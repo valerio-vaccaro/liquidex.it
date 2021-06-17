@@ -50,11 +50,11 @@
 
                    <p><b>Send:</b></p>
                    {{#output}}
-                   <p>{{amount}} {{name}} {{asset}}</p>
+                   <p>{{amount}} ({{sats}} sats) {{name}} <a href="https://blockstream.info/liquid/asset/{{asset}}" target="_blank"><span class="badge">{{asset}}</span></a></p>
                    {{/output}}
                    <p><b>Receive:</b></p>
                    {{#input}}
-                   <p>{{amount}} {{name}} {{asset}}</p>
+                   <p>{{amount}} ({{sats}} sats) {{name}} <a href="https://blockstream.info/liquid/asset/{{asset}}" target="_blank"><span class="badge">{{asset}}</span></a></p>
                    {{/input}}
                    <hr/>
                    <pre>{{json}}</pre><br/>
