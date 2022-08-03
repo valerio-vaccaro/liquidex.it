@@ -33,6 +33,9 @@ myHost = config.get('MYSQL', 'host')
 myUser = config.get('MYSQL', 'username')
 myPasswd = config.get('MYSQL', 'password')
 myDatabase = config.get('MYSQL', 'database')
+liExplorer = config.get('LIQUID', 'explorer')
+liRegistry = config.get('LIQUID', 'registry')
+exPort = config.get('LIQUIDEX', 'port')
 
 
 @app.route('/.well-known/<path:filename>')
@@ -138,10 +141,16 @@ def check(id, asset):
         mycursor.execute(sql)
         myresult = mycursor.fetchall()
         for x in myresult:
-            r = requests.get('https://blockstream.info/liquid/api/tx/'+x[1]+'/outspend/'+str(x[2]))
+            r = requests.get(f'{liExplorer}/api/tx/{x[1]}/outspend/{x[2]}')
             if r.json()['spent'] == True:
-                sql = 'UPDATE input SET spent = true WHERE id ='+str(x[0])
-                mycursor.execute(sql)
+                sql = ' \
+                    UPDATE input \
+                    SET spent = true \
+                    WHERE id = %s \
+                '
+                val = (str(x[0]))
+                mycursor.execute(sql, val)  
+                myresult = mycursor.fetchall()
         mydb.commit()
     except:
         print('no input')
@@ -154,11 +163,12 @@ def check(id, asset):
             AND available = true \
             AND input.spent = true \
         '
-        mycursor.execute(sql)
+        mycursor.execute(sql) 
         myresult = mycursor.fetchall()
         for x in myresult:
-            sql = 'UPDATE proposal SET available = false WHERE id ='+str(x[0])
-            mycursor.execute(sql)
+            sql = 'UPDATE proposal SET available = false WHERE id = %s'
+            val = (str(x[0]))
+            mycursor.execute(sql, val) 
             myresult = mycursor.fetchall()
 
     except:
@@ -181,13 +191,15 @@ def resolve_asset(asset_id):
     sql = ' \
         SELECT COUNT(*) \
         FROM asset  \
-        WHERE asset = "'+asset_id+'"'
-    mycursor.execute(sql)
+        WHERE asset = "%s" \
+    '
+    val = (asset_id)
+    mycursor.execute(sql, val) 
     result = mycursor.fetchone()
     if result[0]==0:
         # get info from
         try:
-            r = requests.get('https://assets.blockstream.info/'+asset_id)
+            r = requests.get(f'{liRegistry}/{asset_id}')
             registry_element = r.json()
             sql = ' \
                 INSERT INTO asset (asset, ticker, name, website, precision_value) \
@@ -208,7 +220,7 @@ def resolve_all():
         UNION \
         SELECT asset FROM output \
     '
-    mycursor.execute(sql)
+    mycursor.execute(sql) 
     myresult = mycursor.fetchall()
     mydb.commit()
     mydb.close()
@@ -325,4 +337,4 @@ def url_about():
 
 if __name__ == '__main__':
     app.import_name = '.'
-    app.run(host='0.0.0.0', port=8155)
+    app.run(host='0.0.0.0', port=exPort)

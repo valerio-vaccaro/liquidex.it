@@ -3,3 +3,10 @@ host:
 username:
 password:
 database:
+
+[LIQUID]
+explorer:
+registry:
+
+[LIQUIDEX]
+port:
