@@ -268,8 +268,8 @@ def book(id, asset):
       filtered_data[x[0]]['creation_timestamp'] = x[9]
       in_format = '%.'+str(in_precision)+'f'
       out_format = '%.'+str(out_precision)+'f'
-      filtered_data[x[0]]['input'].append({'asset': x[2], 'sats': '%.0f' % x[3], 'amount': in_format % (x[3]/(10**in_precision)), 'name': x[4]})
-      filtered_data[x[0]]['output'].append({'asset': x[5], 'sats': '%.0f' % x[6], 'amount': out_format % (x[6]/(10**out_precision)), 'name': x[7]})
+      filtered_data[x[0]]['input'].append({'asset': x[2], 'sats': '%.0f' % x[3], 'amount': in_format % (x[3]/(10**in_precision)), 'name': x[4], 'url': liExplorer})
+      filtered_data[x[0]]['output'].append({'asset': x[5], 'sats': '%.0f' % x[6], 'amount': out_format % (x[6]/(10**out_precision)), 'name': x[7], 'url': liExplorer})
     return filtered_data
 
 
