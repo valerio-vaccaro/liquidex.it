@@ -88,7 +88,7 @@ def add_proposal(proposal):
     input_vout = wally.tx_get_input_index(transaction, 0)
     mydb = mysql.connector.connect(host=myHost, user=myUser, passwd=myPasswd, database=myDatabase)
     mycursor = mydb.cursor()
-    sql = 'INSERT INTO proposal (json, tx) VALUES (%s, %s, SHA2(%s, 256))'
+    sql = 'INSERT INTO proposal (json, tx, sha) VALUES (%s, %s, SHA2(%s, 256))'
     val = (proposal, json_object['tx'], proposal)
     mycursor.execute(sql, val)
     proposal_id = mycursor.lastrowid
