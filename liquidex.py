@@ -94,11 +94,11 @@ def add_proposal(proposal):
     proposal_id = mycursor.lastrowid
     for row in json_object['inputs']:
         sql = 'INSERT INTO input (proposal_id, asset, amount, txid, vout) VALUES (%s, %s, %s, %s, %s)'
-        val = (proposal_id, row['asset'], row['amount'], input_txid, input_vout)
+        val = (proposal_id, row['asset'], row['value'], input_txid, input_vout)
         mycursor.execute(sql, val)
     for row in json_object['outputs']:
         sql = 'INSERT INTO output (proposal_id, asset, amount) VALUES (%s, %s, %s)'
-        val = (proposal_id, row['asset'], row['amount'])
+        val = (proposal_id, row['asset'], row['value'])
         mycursor.execute(sql, val)
     mydb.commit()
     mydb.close()
