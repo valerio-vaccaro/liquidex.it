@@ -146,10 +146,8 @@ def check(id, asset):
                 sql = ' \
                     UPDATE input \
                     SET spent = true \
-                    WHERE id = %s \
-                '
-                val = (str(x[0]))
-                mycursor.execute(sql, val)  
+                    WHERE id = ' + str(x[0])
+                mycursor.execute(sql)  
                 myresult = mycursor.fetchall()
         mydb.commit()
     except:
@@ -166,9 +164,8 @@ def check(id, asset):
         mycursor.execute(sql) 
         myresult = mycursor.fetchall()
         for x in myresult:
-            sql = 'UPDATE proposal SET available = false WHERE id = %s'
-            val = (str(x[0]))
-            mycursor.execute(sql, val) 
+            sql = 'UPDATE proposal SET available = false WHERE id = ' + str(x[0])
+            mycursor.execute(sql) 
             myresult = mycursor.fetchall()
 
     except:
@@ -191,10 +188,8 @@ def resolve_asset(asset_id):
     sql = ' \
         SELECT COUNT(*) \
         FROM asset  \
-        WHERE asset = "%s" \
-    '
-    val = (asset_id)
-    mycursor.execute(sql, val) 
+        WHERE asset = "' + asset_id + '"'
+    mycursor.execute(sql) 
     result = mycursor.fetchone()
     if result[0]==0:
         # get info from
@@ -291,14 +286,14 @@ def url_getproposal():
     sql = ' \
         SELECT json\
         FROM proposal\
-        WHERE proposal.id ='+str(id)
+        WHERE proposal.id = ' + str(id)
     mycursor.execute(sql)
     myresult = mycursor.fetchone()
     mydb.commit()
     mydb.close()
     return Response(myresult[0],
         mimetype='text/plain',
-        headers={'Content-disposition':'attachment; filename=proposal_'+str(id)+'.txt'})
+        headers={'Content-disposition':'attachment; filename=proposal_' + str(id) + '.txt'})
 
 
 @app.route('/book', methods=['GET'])
