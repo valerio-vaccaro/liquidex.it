@@ -89,7 +89,7 @@ def add_proposal(proposal):
     mydb = mysql.connector.connect(host=myHost, user=myUser, passwd=myPasswd, database=myDatabase)
     mycursor = mydb.cursor()
     sql = 'INSERT INTO proposal (json, tx) VALUES (%s, %s, SHA2(%s, 256))'
-    val = (proposal, json_object['tx'], proposal
+    val = (proposal, json_object['tx'], proposal)
     mycursor.execute(sql, val)
     proposal_id = mycursor.lastrowid
     for row in json_object['inputs']:
