@@ -81,6 +81,9 @@ def add_proposal(proposal):
     if 'outputs' not in json_object:
         return {'result': 'Missing outputs array.'}
 
+
+    version = json_object['version']
+
     # decode tx
     transaction = wally.tx_from_hex(json_object['tx'], wally.WALLY_TX_FLAG_USE_ELEMENTS | wally.WALLY_TX_FLAG_USE_WITNESS)
     # todo: use all inputs
@@ -88,17 +91,25 @@ def add_proposal(proposal):
     input_vout = wally.tx_get_input_index(transaction, 0)
     mydb = mysql.connector.connect(host=myHost, user=myUser, passwd=myPasswd, database=myDatabase)
     mycursor = mydb.cursor()
-    sql = 'INSERT INTO proposal (json, tx, sha) VALUES (%s, %s, SHA2(%s, 256))'
-    val = (proposal, json_object['tx'], proposal)
+    sql = 'INSERT INTO proposal (version, json, tx, sha) VALUES (%s, %s, %s, SHA2(%s, 256))'
+    val = (version, proposal, json_object['tx'], proposal)
     mycursor.execute(sql, val)
     proposal_id = mycursor.lastrowid
     for row in json_object['inputs']:
         sql = 'INSERT INTO input (proposal_id, asset, amount, txid, vout) VALUES (%s, %s, %s, %s, %s)'
-        val = (proposal_id, row['asset'], row['value'], input_txid, input_vout)
+        if (version == 0):
+            value = row['amount']
+        else:
+            value = row['value']
+        val = (proposal_id, row['asset'], value, input_txid, input_vout)
         mycursor.execute(sql, val)
     for row in json_object['outputs']:
         sql = 'INSERT INTO output (proposal_id, asset, amount) VALUES (%s, %s, %s)'
-        val = (proposal_id, row['asset'], row['value'])
+        if (version == 0):
+            value = row['amount']
+        else:
+            value = row['value']
+        val = (proposal_id, row['asset'], value)
         mycursor.execute(sql, val)
     mydb.commit()
     mydb.close()
