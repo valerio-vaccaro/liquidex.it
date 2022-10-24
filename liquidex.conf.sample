@@ -10,3 +10,4 @@ registry:
 
 [LIQUIDEX]
 port:
+url:

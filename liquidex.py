@@ -1,3 +1,4 @@
+from http import server
 from flask import (
     Flask,
     request,
@@ -36,7 +37,7 @@ myDatabase = config.get('MYSQL', 'database')
 liExplorer = config.get('LIQUID', 'explorer')
 liRegistry = config.get('LIQUID', 'registry')
 exPort = config.get('LIQUIDEX', 'port')
-
+server_url = config.get('LIQUIDEX', 'url')
 
 @app.route('/.well-known/<path:filename>')
 def wellKnownRoute(filename):
@@ -120,10 +121,11 @@ def add_proposal(proposal):
     return data
 
 
-@app.route('/api/proposal', methods=['GET'])
+@app.route('/api/proposal', methods=['POST'])
 @limiter.exempt
 def api_proposal():
-    proposal = request.args.get('proposal')
+    proposal = request.data 
+    #proposal = request.args.get('proposal')
     data = add_proposal(proposal)
     return jsonify(data)
 
@@ -273,6 +275,8 @@ def book(id, asset, all):
           filtered_data[x[0]]['output'] = []
       filtered_data[x[0]]['id'] = x[0]
       filtered_data[x[0]]['json'] = x[1]
+      print(len(x[1]))
+      filtered_data[x[0]]['qr'] = QRcode.qrcode(f"{server_url}/api/getproposaljson?id={x[0]}")
       filtered_data[x[0]]['available'] = x[8]
       filtered_data[x[0]]['creation_timestamp'] = x[9]
       filtered_data[x[0]]['version'] = x[12]
@@ -311,6 +315,21 @@ def url_getproposal():
         mimetype='text/plain',
         headers={'Content-disposition':'attachment; filename=proposal_' + str(id) + '.txt'})
 
+@app.route('/api/getproposaljson', methods=['GET'])
+@limiter.exempt
+def url_getproposaljson():
+    id = request.args.get('id')
+    mydb = mysql.connector.connect(host=myHost, user=myUser, passwd=myPasswd, database=myDatabase)
+    mycursor = mydb.cursor()
+    sql = ' \
+        SELECT json\
+        FROM proposal\
+        WHERE proposal.id = ' + str(id)
+    mycursor.execute(sql)
+    myresult = mycursor.fetchone()
+    mydb.commit()
+    mydb.close()
+    return myresult[0]
 
 @app.route('/book', methods=['GET'])
 @limiter.exempt
