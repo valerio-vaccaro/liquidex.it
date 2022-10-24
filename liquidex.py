@@ -271,10 +271,10 @@ def book(id, asset, all):
         filtered_data[x[0]] = {}
         filtered_data[x[0]]['input'] = []
         filtered_data[x[0]]['output'] = []
-        in_multi=10^in_precision
-        out_multi=10^out_precision
+        in_multi=10**in_precision
+        out_multi=10**out_precision
         if ((in_multi > 0) and (out_multi > 0)):
-            filtered_data[x[0]]['ratio']=(x[3]/in_multi)/(x[6]/out_multi)
+            filtered_data[x[0]]['ratio']=(x[6]/out_multi)/(x[3]/in_multi)
         else:
             filtered_data[x[0]]['ratio']=0
         filtered_data[x[0]]['id'] = x[0]
@@ -285,8 +285,8 @@ def book(id, asset, all):
         filtered_data[x[0]]['version'] = x[12]
         in_format = '%.'+str(in_precision)+'f'
         out_format = '%.'+str(out_precision)+'f'
-        filtered_data[x[0]]['input'].append({'asset': x[2], 'sats': '%.0f' % x[3], 'amount': in_format % (x[3]/(10**in_precision)), 'name': x[4], 'url': liExplorer})
-        filtered_data[x[0]]['output'].append({'asset': x[5], 'sats': '%.0f' % x[6], 'amount': out_format % (x[6]/(10**out_precision)), 'name': x[7], 'url': liExplorer})
+        filtered_data[x[0]]['input'].append({'asset': x[2], 'sats': '%.0f' % x[3], 'amount': in_format % (x[3]/in_multi), 'name': x[4], 'url': liExplorer})
+        filtered_data[x[0]]['output'].append({'asset': x[5], 'sats': '%.0f' % x[6], 'amount': out_format % (x[6]/out_multi), 'name': x[7], 'url': liExplorer})
       
     return filtered_data
 
