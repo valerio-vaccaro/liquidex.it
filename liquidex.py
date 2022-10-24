@@ -271,8 +271,8 @@ def book(id, asset, all):
         filtered_data[x[0]] = {}
         filtered_data[x[0]]['input'] = []
         filtered_data[x[0]]['output'] = []
-        in_multi=2^in_precision
-        out_multi=2^out_precision
+        in_multi=10^in_precision
+        out_multi=10^out_precision
         if ((in_multi > 0) and (out_multi > 0)):
             filtered_data[x[0]]['ratio']=(x[3]/in_multi)/(x[6]/out_multi)
         else:
