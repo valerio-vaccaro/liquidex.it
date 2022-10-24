@@ -124,9 +124,7 @@ def add_proposal(proposal):
 @app.route('/api/proposal', methods=['POST'])
 @limiter.exempt
 def api_proposal():
-    proposal = request.data 
-    #proposal = request.args.get('proposal')
-    data = add_proposal(proposal)
+    data = add_proposal(request.data)
     return jsonify(data)
 
 
