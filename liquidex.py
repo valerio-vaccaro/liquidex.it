@@ -234,12 +234,12 @@ def resolve_all():
         resolve_asset(x[0])
 
 
-def book(id, asset):
+def book(id, asset, all):
     check(1, 1)
     mydb = mysql.connector.connect(host=myHost, user=myUser, passwd=myPasswd, database=myDatabase)
     mycursor = mydb.cursor()
     sql = ' \
-        SELECT proposal.id, json, input.asset, input.amount, CONCAT(input_asset.ticker," - ",input_asset.name," (",input_asset.website,")") AS name, output.asset, output.amount, CONCAT(output_asset.ticker," - ",output_asset.name," (",output_asset.website,")") AS name, available, proposal.creation_timestamp, input_asset.precision_value, output_asset.precision_value \
+        SELECT proposal.id, json, input.asset, input.amount, CONCAT(input_asset.ticker," - ",input_asset.name," (",input_asset.website,")") AS name, output.asset, output.amount, CONCAT(output_asset.ticker," - ",output_asset.name," (",output_asset.website,")") AS name, available, proposal.creation_timestamp, input_asset.precision_value, output_asset.precision_value, proposal.version \
         FROM proposal \
         INNER JOIN output \
         ON proposal.id = output.proposal_id \
@@ -249,8 +249,11 @@ def book(id, asset):
         ON input.asset = input_asset.asset \
         LEFT JOIN asset AS output_asset \
         ON output.asset = output_asset.asset \
-        ORDER BY proposal.creation_timestamp DESC \
     '
+    if all is None:
+        sql = sql +  'WHERE available = TRUE ORDER BY proposal.creation_timestamp DESC'
+    else:
+        sql = sql +  'ORDER BY proposal.creation_timestamp DESC'
     val = ()
     mycursor.execute(sql)
     myresult = mycursor.fetchall()
@@ -272,6 +275,7 @@ def book(id, asset):
       filtered_data[x[0]]['json'] = x[1]
       filtered_data[x[0]]['available'] = x[8]
       filtered_data[x[0]]['creation_timestamp'] = x[9]
+      filtered_data[x[0]]['version'] = x[12]
       in_format = '%.'+str(in_precision)+'f'
       out_format = '%.'+str(out_precision)+'f'
       filtered_data[x[0]]['input'].append({'asset': x[2], 'sats': '%.0f' % x[3], 'amount': in_format % (x[3]/(10**in_precision)), 'name': x[4], 'url': liExplorer})
@@ -284,7 +288,8 @@ def book(id, asset):
 def api_book():
     id = request.args.get('id')
     asset = request.args.get('asset')
-    data = book(id, asset)
+    all = request.args.get('all')
+    data = book(id, asset, all)
     return jsonify(data)
 
 
@@ -312,7 +317,8 @@ def url_getproposal():
 def url_book():
     id = request.args.get('id')
     asset = request.args.get('asset')
-    filtered_data = book(id, asset)
+    all = request.args.get('all')
+    filtered_data = book(id, asset, all)
 
     results = []
     for k in filtered_data.keys():
