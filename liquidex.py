@@ -261,33 +261,32 @@ def book(id, asset, all):
     mydb.close()
     filtered_data = {}
     for x in myresult:
-      in_precision = x[10]
-      if in_precision is None:
-          in_precision = 0
-      out_precision = x[11]
-      if out_precision is None:
-          out_precision = 0
+        in_precision = x[10]
+        if in_precision is None:
+            in_precision = 0
+        out_precision = x[11]
+        if out_precision is None:
+            out_precision = 0
 
-      if x[0] not in filtered_data:
         filtered_data[x[0]] = {}
         filtered_data[x[0]]['input'] = []
         filtered_data[x[0]]['output'] = []
         in_multi=2^in_precision
         out_multi=2^out_precision
-        filtered_data[x[0]]['ratio']=(x[3]/in_multi)/(x[6]/out_multi)
-      filtered_data[x[0]]['id'] = x[0]
-      filtered_data[x[0]]['json'] = x[1]
-      print(len(x[1]))
-      filtered_data[x[0]]['qr'] = QRcode.qrcode(f"{server_url}/api/getproposaljson?id={x[0]}")
-      filtered_data[x[0]]['available'] = x[8]
-      filtered_data[x[0]]['creation_timestamp'] = x[9]
-      filtered_data[x[0]]['version'] = x[12]
-      in_format = '%.'+str(in_precision)+'f'
-      out_format = '%.'+str(out_precision)+'f'
-      filtered_data[x[0]]['input'].append({'asset': x[2], 'sats': '%.0f' % x[3], 'amount': in_format % (x[3]/(10**in_precision)), 'name': x[4], 'url': liExplorer})
-      filtered_data[x[0]]['output'].append({'asset': x[5], 'sats': '%.0f' % x[6], 'amount': out_format % (x[6]/(10**out_precision)), 'name': x[7], 'url': liExplorer})
-
-      ordered_data={}
+        if ((in_multi > 0) and (out_multi > 0)):
+            filtered_data[x[0]]['ratio']=(x[3]/in_multi)/(x[6]/out_multi)
+        else:
+            filtered_data[x[0]]['ratio']=0
+        filtered_data[x[0]]['id'] = x[0]
+        filtered_data[x[0]]['json'] = x[1]
+        filtered_data[x[0]]['qr'] = QRcode.qrcode(f"{server_url}/api/getproposaljson?id={x[0]}")
+        filtered_data[x[0]]['available'] = x[8]
+        filtered_data[x[0]]['creation_timestamp'] = x[9]
+        filtered_data[x[0]]['version'] = x[12]
+        in_format = '%.'+str(in_precision)+'f'
+        out_format = '%.'+str(out_precision)+'f'
+        filtered_data[x[0]]['input'].append({'asset': x[2], 'sats': '%.0f' % x[3], 'amount': in_format % (x[3]/(10**in_precision)), 'name': x[4], 'url': liExplorer})
+        filtered_data[x[0]]['output'].append({'asset': x[5], 'sats': '%.0f' % x[6], 'amount': out_format % (x[6]/(10**out_precision)), 'name': x[7], 'url': liExplorer})
       
     return filtered_data
 
