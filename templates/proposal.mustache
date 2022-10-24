@@ -44,6 +44,9 @@
                 </form>
                 <hr/>
                 {{result}}
+                <hr/>
+                <p>You can send proposal via API using a POST on <b>/api/proposal</b> with proposal json inside the body.</p>
+                <code>curl -X POST http://liquidex_website/api/proposal -H 'Content-Type: application/json' -d '{...proposal in json...}'</code>
             </div>
          </div>
       </div>
