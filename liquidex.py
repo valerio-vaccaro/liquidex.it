@@ -117,7 +117,7 @@ def add_proposal(proposal):
 
     resolve_all()
 
-    data = {'result': 'ok'}
+    data = {'result': 'ok', 'proposal_id': proposal_id}
     return data
 
 
@@ -319,10 +319,27 @@ def url_getproposal():
         mimetype='text/plain',
         headers={'Content-disposition':'attachment; filename=proposal_' + str(id) + '.txt'})
 
+
 @app.route('/api/getproposaljson', methods=['GET'])
 @limiter.exempt
 def url_getproposaljson():
     id = request.args.get('id')
+    mydb = mysql.connector.connect(host=myHost, user=myUser, passwd=myPasswd, database=myDatabase)
+    mycursor = mydb.cursor()
+    sql = ' \
+        SELECT json\
+        FROM proposal\
+        WHERE proposal.id = ' + str(id)
+    mycursor.execute(sql)
+    myresult = mycursor.fetchone()
+    mydb.commit()
+    mydb.close()
+    return myresult[0]
+
+
+@app.route('/api/proposals/<id>', methods=['GET'])
+@limiter.exempt
+def url_getproposals(id):
     mydb = mysql.connector.connect(host=myHost, user=myUser, passwd=myPasswd, database=myDatabase)
     mycursor = mydb.cursor()
     sql = ' \
