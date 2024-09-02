@@ -9,6 +9,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_stache import render_template
 from flask_qrcode import QRcode
+from werkzeug.middleware.proxy_fix import ProxyFix
 import configparser
 import json
 import mysql.connector
@@ -20,10 +21,14 @@ h2b = wally.hex_to_bytes
 b2h = wally.hex_from_bytes
 
 app = Flask(__name__, static_url_path='/static')
+app.wsgi_app = ProxyFix(
+    app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1
+)
 limiter = Limiter(
-    app,
-    key_func=get_remote_address,
-    default_limits=["1000 per day", "200 per hour"]
+    get_remote_address,
+    app=app,
+    default_limits=["1000 per day", "200 per hour"],
+    storage_uri="memory://",
 )
 qrcode = QRcode(app)
 
